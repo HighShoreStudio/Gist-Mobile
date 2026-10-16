@@ -1,0 +1,11 @@
+name = "gistario-oauth"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+# Sostituisci con il tuo indirizzo GitHub Pages (solo origine, senza percorso)
+ALLOWED_ORIGINS = "https://highshorestudio.github.io"
+GITHUB_CLIENT_ID = "INCOLLA_QUI_IL_CLIENT_ID"
+
+# Il Client Secret va impostato come secret, mai qui:
+#   npx wrangler secret put GITHUB_CLIENT_SECRET
