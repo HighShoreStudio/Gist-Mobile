@@ -1,4 +1,4 @@
-// Creazione e modifica di un gist.
+// Create and edit a gist.
 import { S, go, upsertGist, isMine } from '../state.js';
 import * as api from '../api.js';
 import { mountCode, newDoc } from '../code.js';
@@ -18,12 +18,12 @@ export function render(el, { id }) {
 
   el.innerHTML = `
     <header class="nav-header">
-      <button type="button" class="capsule-btn glass press" data-act="cancel">Annulla</button>
-      <span class="nav-title">${editing ? 'Modifica gist' : 'Nuovo gist'}</span>
-      <button type="button" class="capsule-btn btn-accent press" data-act="save" disabled>Salva</button>
+      <button type="button" class="capsule-btn glass press" data-act="cancel">Cancel</button>
+      <span class="nav-title">${editing ? 'Edit gist' : 'New gist'}</span>
+      <button type="button" class="capsule-btn btn-accent press" data-act="save" disabled>Save</button>
     </header>
     <div data-body style="display:flex;flex-direction:column;flex:1;min-height:0">
-      <div class="code-box"><div class="code-status"><span class="spin"></span>Caricamento…</div></div>
+      <div class="code-box"><div class="code-status"><span class="spin"></span>Loading…</div></div>
     </div>`;
   const body = el.querySelector('[data-body]');
   const saveBtn = el.querySelector('[data-act="save"]');
@@ -53,28 +53,28 @@ export function render(el, { id }) {
   function layout() {
     body.innerHTML = `
       <div class="edit-top">
-        <label class="sr-only" for="desc">Descrizione</label>
-        <input id="desc" class="field glass" style="height:44px" type="text" placeholder="Descrizione del gist" value="${esc(description)}" autocomplete="off">
-        <div class="segmented glass" role="group" aria-label="Visibilità">
-          <button type="button" data-vis="sec" aria-pressed="${!isPublic}" ${editing ? 'disabled' : ''}>Segreto</button>
-          <button type="button" data-vis="pub" aria-pressed="${isPublic}" ${editing ? 'disabled' : ''}>Pubblico</button>
+        <label class="sr-only" for="desc">Description</label>
+        <input id="desc" class="field glass" style="height:44px" type="text" placeholder="Gist description" value="${esc(description)}" autocomplete="off">
+        <div class="segmented glass" role="group" aria-label="Visibility">
+          <button type="button" data-vis="sec" aria-pressed="${!isPublic}" ${editing ? 'disabled' : ''}>Secret</button>
+          <button type="button" data-vis="pub" aria-pressed="${isPublic}" ${editing ? 'disabled' : ''}>Public</button>
         </div>
       </div>
-      <div class="file-tabs" role="tablist" aria-label="File" data-tabs></div>
+      <div class="file-tabs" role="tablist" aria-label="Files" data-tabs></div>
       <section class="code-box" aria-label="File">
         <div class="file-head">
-          <label class="sr-only" for="fname">Nome file</label>
+          <label class="sr-only" for="fname">File name</label>
           <input id="fname" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
           <span class="lang-chip" data-lang></span>
-          <button type="button" class="circle-btn press" data-act="delfile" aria-label="Elimina file">${icon.trash}</button>
+          <button type="button" class="circle-btn press" data-act="delfile" aria-label="Delete file">${icon.trash}</button>
         </div>
         <div style="flex:1;min-height:0;display:flex;flex-direction:column" class="cm-flat" data-code></div>
       </section>
       <div class="bottom-pair">
-        <button type="button" class="capsule-btn glass press" style="height:48px;border-radius:24px" data-act="addfile">${icon.plus}Aggiungi file</button>
-        <button type="button" class="capsule-btn glass press" style="height:48px;border-radius:24px" data-act="import">${icon.download}Importa file</button>
+        <button type="button" class="capsule-btn glass press" style="height:48px;border-radius:24px" data-act="addfile">${icon.plus}Add file</button>
+        <button type="button" class="capsule-btn glass press" style="height:48px;border-radius:24px" data-act="import">${icon.download}Import file</button>
       </div>`;
-    cm = mountCode(body.querySelector('[data-code]'), { readOnly: false, wrap: S.settings.wrap, placeholder: 'Scrivi o incolla il codice…' });
+    cm = mountCode(body.querySelector('[data-code]'), { readOnly: false, wrap: S.settings.wrap, placeholder: 'Type or paste code…' });
     saveBtn.disabled = false;
     select(active);
   }
@@ -82,7 +82,7 @@ export function render(el, { id }) {
   function paintTabs() {
     const tabs = body.querySelector('[data-tabs]');
     tabs.hidden = files.length < 2;
-    tabs.innerHTML = files.map((f, i) => `<button type="button" role="tab" data-file="${i}" aria-selected="${i === active}">${esc(f.name || 'senza nome')}</button>`).join('');
+    tabs.innerHTML = files.map((f, i) => `<button type="button" role="tab" data-file="${i}" aria-selected="${i === active}">${esc(f.name || 'untitled')}</button>`).join('');
   }
 
   function paintLang() {
@@ -108,7 +108,7 @@ export function render(el, { id }) {
       let g = S.full.get(id);
       if (!g) g = await api.getGist(id);
       if (!alive) return;
-      if (!isMine(g)) { toast('Puoi modificare solo i tuoi gist'); go('/gist/' + id, { replace: true }); return; }
+      if (!isMine(g)) { toast('You can only edit your own gists'); go('/gist/' + id, { replace: true }); return; }
       description = g.description || '';
       isPublic = g.public;
       for (const f of Object.values(g.files)) {
@@ -121,7 +121,7 @@ export function render(el, { id }) {
       layout();
     } catch (e) {
       if (!alive) return;
-      body.innerHTML = `<div class="empty" style="flex:1"><strong>Impossibile aprire il gist</strong><p>${esc(e.message)}</p></div>`;
+      body.innerHTML = `<div class="empty" style="flex:1"><strong>Couldn’t open the gist</strong><p>${esc(e.message)}</p></div>`;
     }
   }
 
@@ -129,12 +129,12 @@ export function render(el, { id }) {
     const seen = new Set();
     for (const f of files) {
       const n = f.name.trim();
-      if (!n) return 'Ogni file deve avere un nome';
-      if (/[/\\]/.test(n)) return 'Il nome “' + n + '” non può contenere / o \\';
-      if (/^gistfile\d+$/i.test(n)) return 'Il nome “' + n + '” è riservato da GitHub: aggiungi un’estensione';
-      if (seen.has(n.toLowerCase())) return 'Ci sono due file chiamati “' + n + '”';
+      if (!n) return 'Every file needs a name';
+      if (/[/\\]/.test(n)) return 'The name “' + n + '” can’t contain / or \\';
+      if (/^gistfile\d+$/i.test(n)) return 'The name “' + n + '” is reserved by GitHub: add an extension';
+      if (seen.has(n.toLowerCase())) return 'Two files are named “' + n + '”';
       seen.add(n.toLowerCase());
-      if (!f.doc.getValue().trim()) return 'Il file “' + n + '” è vuoto';
+      if (!f.doc.getValue().trim()) return 'The file “' + n + '” is empty';
     }
     return null;
   }
@@ -164,19 +164,19 @@ export function render(el, { id }) {
       }
       dirty = false;
       upsertGist(g);
-      toast(editing ? 'Modifiche salvate' : 'Gist creato');
+      toast(editing ? 'Changes saved' : 'Gist created');
       go('/gist/' + g.id, { replace: true });
     } catch (e) {
       toast(e.message, 3200);
     } finally {
       saving = false;
-      if (alive) { saveBtn.disabled = false; saveBtn.textContent = 'Salva'; }
+      if (alive) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
     }
   }
 
   async function cancel() {
     if (dirty) {
-      const ok = await confirmSheet({ title: 'Eliminare le modifiche?', message: 'Le modifiche non salvate andranno perse.', ok: 'Elimina modifiche', danger: true });
+      const ok = await confirmSheet({ title: 'Discard changes?', message: 'Unsaved changes will be lost.', ok: 'Discard', danger: true });
       if (!ok) return;
     }
     dirty = false;
@@ -208,21 +208,21 @@ export function render(el, { id }) {
     const act = a.dataset.act;
     if (act === 'cancel') cancel();
     if (act === 'save') save();
-    if (act === 'addfile') { addFile('', ''); select(active); markDirty(); setTimeout(() => body.querySelector('#fname').focus(), 50); }
+    if (act === 'addfile') { addFile('', ''); select(active); markDirty(); body.querySelector('#fname').focus(); }
     if (act === 'import') {
       const picked = await pickFiles();
       if (!picked.length) return;
-      // se c'è un solo file vuoto e senza nome, lo sostituisco
+      // replace a single empty, unnamed file
       if (files.length === 1 && !files[0].orig && !files[0].doc.getValue() && /^gistfile\d+\.txt$/.test(files[0].name)) files = [];
       picked.forEach((p) => addFile(p.name, p.text));
       select(files.length - 1); markDirty();
-      toast(picked.length === 1 ? 'File importato' : picked.length + ' file importati');
+      toast(picked.length === 1 ? 'File imported' : picked.length + ' files imported');
     }
     if (act === 'delfile') {
-      if (files.length < 2) { toast('Un gist deve avere almeno un file'); return; }
+      if (files.length < 2) { toast('A gist needs at least one file'); return; }
       const f = files[active];
       if (f.doc.getValue().trim()) {
-        const ok = await confirmSheet({ title: 'Eliminare “' + (f.name || 'senza nome') + '”?', ok: 'Elimina file', danger: true });
+        const ok = await confirmSheet({ title: 'Delete “' + (f.name || 'untitled') + '”?', ok: 'Delete file', danger: true });
         if (!ok) return;
       }
       files.splice(active, 1); select(active); markDirty();

@@ -1,4 +1,4 @@
-// Avvio, router e gestione della tab bar.
+// Startup, router and tab bar handling.
 import { S, applySettings, go } from './state.js';
 import * as auth from './auth.js';
 import { toast } from './ui.js';
@@ -43,7 +43,7 @@ function route() {
   if (r.auth && !S.token) { go('/login', { replace: true }); return; }
   if (path === '/login' && S.token) { go('/gists', { replace: true }); return; }
 
-  // salva lo scroll della vista che si chiude
+  // save the scroll position of the view being closed
   if (current) {
     const sc = current.el.querySelector('[data-scroll]');
     if (sc) S.scroll[current.path] = sc.scrollTop;
@@ -62,13 +62,13 @@ function route() {
   el.className = 'view' + (r.push ? ' push' : '');
   app.appendChild(el);
   let cleanup;
-  try { cleanup = r.render(el, match); } catch (e) { console.error(e); toast('Errore: ' + e.message); }
+  try { cleanup = r.render(el, match); } catch (e) { console.error(e); toast('Error: ' + e.message); }
   current = { el, cleanup: typeof cleanup === 'function' ? cleanup : null, path };
   const sc = el.querySelector('[data-scroll]');
   if (sc && S.scroll[path]) requestAnimationFrame(() => { sc.scrollTop = S.scroll[path]; });
 }
 
-// Altezza reale disponibile (tastiera iOS inclusa)
+// Real available height (iOS keyboard included)
 function syncViewport() {
   const vv = window.visualViewport;
   const h = vv ? vv.height : window.innerHeight;
@@ -88,15 +88,15 @@ async function boot() {
   window.addEventListener('resize', syncViewport);
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* offline non disponibile */ });
+    navigator.serviceWorker.register('sw.js').catch(() => { /* offline unavailable */ });
   }
 
-  // Ritorno dal login OAuth
+  // Return from OAuth sign-in
   if (auth.hasCallback() && auth.oauthAvailable()) {
-    app.innerHTML = '<section class="view"><div class="empty" style="flex:1"><span class="spin"></span><strong>Accesso in corso…</strong></div></section>';
+    app.innerHTML = '<section class="view"><div class="empty" style="flex:1"><span class="spin"></span><strong>Signing in…</strong></div></section>';
     try {
       const user = await auth.finishOAuth();
-      toast('Ciao ' + (user.name || user.login) + '!');
+      toast('Hi ' + (user.name || user.login) + '!');
     } catch (e) {
       toast(e.message, 3200);
       location.replace('#/login');

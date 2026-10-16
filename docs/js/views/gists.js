@@ -1,10 +1,10 @@
-// Lista dei miei gist e dei gist con stella.
+// My gists and starred gists.
 import { S, LS, setGists, setStarred, starredIds, go } from '../state.js';
 import * as api from '../api.js';
 import { esc, icon, relTime, langInfo, firstFile, fileCount, actionSheet, avatarHtml, loadingCards, toast } from '../ui.js';
 
-const FILTERS = [['all', 'Tutti'], ['star', 'Con stella'], ['pub', 'Pubblici'], ['sec', 'Segreti']];
-const SORTS = { updated: 'Ultima modifica', created: 'Data di creazione', name: 'Nome (A–Z)' };
+const FILTERS = [['all', 'All'], ['star', 'Starred'], ['pub', 'Public'], ['sec', 'Secret']];
+const SORTS = { updated: 'Last updated', created: 'Date created', name: 'Name (A–Z)' };
 
 export function cardHtml(g, { stars, showOwner = false } = {}) {
   const f = firstFile(g);
@@ -13,7 +13,7 @@ export function cardHtml(g, { stars, showOwner = false } = {}) {
   const meta = [
     `<span class="lang"><span class="dot" style="--c:${lang.color}"></span>${esc(lang.name)}</span>`,
     `<span>${fileCount(g)}</span>`,
-    showOwner && g.owner ? `<span>@${esc(g.owner.login)}</span>` : `<span>${g.public ? 'Pubblico' : 'Segreto'}</span>`,
+    showOwner && g.owner ? `<span>@${esc(g.owner.login)}</span>` : `<span>${g.public ? 'Public' : 'Secret'}</span>`,
     `<span class="when">${esc(relTime(g.updated_at))}</span>`
   ].join('');
   return `<a class="card" href="#/gist/${esc(g.id)}">
@@ -31,7 +31,7 @@ function matches(g, q) {
 
 function sortList(list, sort) {
   const arr = list.slice();
-  if (sort === 'name') arr.sort((a, b) => firstFile(a).filename.localeCompare(firstFile(b).filename, 'it', { sensitivity: 'base' }));
+  if (sort === 'name') arr.sort((a, b) => firstFile(a).filename.localeCompare(firstFile(b).filename, 'en', { sensitivity: 'base' }));
   else if (sort === 'created') arr.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
   else arr.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
   return arr;
@@ -46,21 +46,21 @@ export function render(el, { mode }) {
     <div class="scroll pad-bottom" data-scroll>
       <div class="ptr" data-ptr><span class="spin"></span></div>
       <header class="large-header">
-        <h1>${mine ? 'Gist' : 'Con stella'}</h1>
-        <a class="avatar glass press" href="#/profile" aria-label="Profilo e account">${avatarHtml(S.user, 44)}</a>
+        <h1>${mine ? 'Gists' : 'Starred'}</h1>
+        <a class="avatar glass press" href="#/profile" aria-label="Profile and account">${avatarHtml(S.user, 44)}</a>
       </header>
       <div class="searchbar glass">
         ${icon.search}
-        <label class="sr-only" for="q">Cerca</label>
-        <input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Cerca nome, descrizione, linguaggio" value="${esc(st.query)}">
+        <label class="sr-only" for="q">Search</label>
+        <input id="q" type="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search name, description, language" value="${esc(st.query)}">
       </div>
-      ${mine ? `<div class="chips" role="group" aria-label="Filtri">${FILTERS.map(([k, l]) => `<button type="button" class="chip press" data-filter="${k}" aria-pressed="${st.filter === k}">${l}</button>`).join('')}</div>` : ''}
+      ${mine ? `<div class="chips" role="group" aria-label="Filters">${FILTERS.map(([k, l]) => `<button type="button" class="chip press" data-filter="${k}" aria-pressed="${st.filter === k}">${l}</button>`).join('')}</div>` : ''}
       <div class="list-meta"><span data-count></span>
         <button type="button" data-act="sort">${esc(SORTS[S.list.sort])}${icon.chevron}</button>
       </div>
       <div class="cards" data-cards></div>
     </div>
-    ${mine ? `<a class="fab btn-accent press" href="#/new" aria-label="Nuovo gist">${icon.plus}</a>` : ''}`;
+    ${mine ? `<a class="fab btn-accent press" href="#/new" aria-label="New gist">${icon.plus}</a>` : ''}`;
 
   const cardsEl = el.querySelector('[data-cards]');
   const countEl = el.querySelector('[data-count]');
@@ -81,11 +81,11 @@ export function render(el, { mode }) {
       else if (st.filter === 'sec') list = list.filter((g) => !g.public);
     }
     list = sortList(list, S.list.sort);
-    countEl.textContent = list.length === 1 ? '1 gist' : list.length + ' gist';
+    countEl.textContent = list.length === 1 ? '1 gist' : list.length + ' gists';
     if (!list.length) {
-      cardsEl.innerHTML = `<div class="empty">${st.query ? '<strong>Nessun risultato</strong><p>Prova con un’altra parola.</p>'
-        : mine ? '<strong>Ancora nessun gist</strong><p>Tocca + per crearne uno.</p>'
-          : '<strong>Nessun gist con stella</strong><p>Apri un gist e tocca la stella per ritrovarlo qui.</p>'}</div>`;
+      cardsEl.innerHTML = `<div class="empty">${st.query ? '<strong>No results</strong><p>Try a different word.</p>'
+        : mine ? '<strong>No gists yet</strong><p>Tap + to create one.</p>'
+          : '<strong>No starred gists</strong><p>Open a gist and tap the star to find it here.</p>'}</div>`;
       return;
     }
     const showOwner = !mine || st.filter === 'star';
@@ -93,7 +93,7 @@ export function render(el, { mode }) {
   }
 
   function errorHtml(msg) {
-    return `<div class="empty"><strong>Impossibile caricare</strong><p>${esc(msg)}</p><button type="button" class="capsule-btn glass press" data-act="retry">Riprova</button></div>`;
+    return `<div class="empty"><strong>Couldn’t load</strong><p>${esc(msg)}</p><button type="button" class="capsule-btn glass press" data-act="retry">Try again</button></div>`;
   }
 
   async function load() {
@@ -108,7 +108,7 @@ export function render(el, { mode }) {
       if (stars) setStarred(stars);
     } catch (e) {
       error = e.message;
-      if (e.status === 401) toast('Sessione scaduta: accedi di nuovo', 3000);
+      if (e.status === 401) toast('Session expired: please sign in again', 3000);
       else if ((mine ? S.gists : S.starred)) toast(e.message);
     } finally {
       loading = false;
@@ -131,7 +131,7 @@ export function render(el, { mode }) {
     if (!act) return;
     if (act.dataset.act === 'retry') { paint(); load(); }
     if (act.dataset.act === 'sort') {
-      const k = await actionSheet({ title: 'Ordina per', items: Object.entries(SORTS).map(([key, label]) => ({ key, label: (S.list.sort === key ? '✓ ' : '') + label })) });
+      const k = await actionSheet({ title: 'Sort by', items: Object.entries(SORTS).map(([key, label]) => ({ key, label: (S.list.sort === key ? '✓ ' : '') + label })) });
       if (k) {
         S.list.sort = k; LS.set('sort', k);
         act.innerHTML = esc(SORTS[k]) + icon.chevron;
@@ -140,7 +140,7 @@ export function render(el, { mode }) {
     }
   });
 
-  // Trascina in basso per aggiornare
+  // Pull down to refresh
   const ptr = el.querySelector('[data-ptr]');
   let startY = null; let pulled = false;
   scroller.addEventListener('touchstart', (e) => { startY = scroller.scrollTop <= 0 ? e.touches[0].clientY : null; pulled = false; }, { passive: true });
@@ -158,5 +158,5 @@ export function render(el, { mode }) {
   load();
 }
 
-// usato dalle altre viste per aprire un gist
+// used by other views to open a gist
 export function openGist(id) { go('/gist/' + id); }

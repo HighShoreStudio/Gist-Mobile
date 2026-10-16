@@ -1,7 +1,7 @@
-// Service worker di Gistario: app disponibile offline + ultima copia delle API.
-const VERSION = 'gistario-v1.0.0';
+// Gist Mobile service worker: offline app + last copy of API responses.
+const VERSION = 'gist-mobile-v1.1.0';
 const SHELL_CACHE = VERSION + '-shell';
-const API_CACHE = 'gistario-api';
+const API_CACHE = 'gist-mobile-api';
 
 const SHELL = [
   './',
@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // App: prima la cache (aggiornata in background)
+  // App files: cache first (refreshed in the background)
   if (url.origin === self.location.origin) {
     if (url.pathname.endsWith('/config.js')) { event.respondWith(networkFirst(req, SHELL_CACHE)); return; }
     event.respondWith(
@@ -66,7 +66,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // API GitHub e file raw dei gist: prima la rete, poi l'ultima copia salvata
+  // GitHub API and raw gist files: network first, then the last saved copy
   if (url.hostname === 'api.github.com' || url.hostname === 'gist.githubusercontent.com') {
     if (url.pathname.endsWith('/star')) return;
     event.respondWith(networkFirst(req, API_CACHE));

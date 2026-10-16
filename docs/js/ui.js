@@ -1,4 +1,4 @@
-// Componenti e utilità di interfaccia condivise.
+// Shared UI components and helpers.
 
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -8,7 +8,7 @@ export const icon = {
   more: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
   star: P('<path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'),
   starFill: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>',
-  starSmall: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFC46B" stroke="#FFC46B" stroke-width="2" stroke-linejoin="round" role="img" aria-label="Con stella"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>',
+  starSmall: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFC46B" stroke="#FFC46B" stroke-width="2" stroke-linejoin="round" role="img" aria-label="Starred"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>',
   search: P('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
   plus: P('<path d="M12 5v14M5 12h14"/>', 2.3),
   copy: P('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 011-1h9"/>'),
@@ -64,7 +64,7 @@ function openSheet(inner, onReady) {
 export function actionSheet({ title, message, items }) {
   const head = title || message ? `<div class="title">${title ? `<strong>${esc(title)}</strong>` : ''}${message ? esc(message) : ''}</div>` : '';
   const opts = items.map((it, i) => `<button type="button" class="opt ${it.sub ? 'left' : ''} ${it.danger ? 'danger' : ''}" data-i="${i}" ${head || i ? '' : 'style="border-top:0"'}>${esc(it.label)}${it.sub ? `<span class="sub">${esc(it.sub)}</span>` : ''}</button>`).join('');
-  return openSheet(`<div class="panel">${head}${opts}</div><div class="panel"><button type="button" class="opt cancel" data-i="-1">Annulla</button></div>`, (bd, done) => {
+  return openSheet(`<div class="panel">${head}${opts}</div><div class="panel"><button type="button" class="opt cancel" data-i="-1">Cancel</button></div>`, (bd, done) => {
     bd.querySelectorAll('[data-i]').forEach((b) => b.addEventListener('click', () => {
       const i = Number(b.dataset.i);
       done(i < 0 ? null : items[i].key);
@@ -72,7 +72,7 @@ export function actionSheet({ title, message, items }) {
   });
 }
 
-export function confirmSheet({ title, message, ok = 'Conferma', danger = false }) {
+export function confirmSheet({ title, message, ok = 'Confirm', danger = false }) {
   return actionSheet({ title, message, items: [{ key: true, label: ok, danger }] }).then((v) => v === true);
 }
 
@@ -82,7 +82,7 @@ export function promptSheet({ title, label, placeholder = '', value = '', ok = '
       <label class="sr-only" for="sheet-input">${esc(label || title)}</label>
       <input id="sheet-input" class="field" type="${type}" placeholder="${esc(placeholder)}" value="${esc(value)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       ${hint ? `<p class="hint">${esc(hint)}</p>` : ''}
-      <div class="btns"><button type="button" class="capsule-btn glass press" data-cancel>Annulla</button><button type="submit" class="capsule-btn btn-accent press">${esc(ok)}</button></div>
+      <div class="btns"><button type="button" class="capsule-btn glass press" data-cancel>Cancel</button><button type="submit" class="capsule-btn btn-accent press">${esc(ok)}</button></div>
     </form></div>`, (bd, done) => {
     const input = bd.querySelector('input');
     setTimeout(() => input.focus(), 60);
@@ -92,26 +92,26 @@ export function promptSheet({ title, label, placeholder = '', value = '', ok = '
 }
 
 export function infoSheet({ title, html }) {
-  return openSheet(`<div class="panel"><div class="title"><strong>${esc(title)}</strong></div>${html}</div><div class="panel"><button type="button" class="opt cancel" data-close>Ho capito</button></div>`, (bd, done) => {
+  return openSheet(`<div class="panel"><div class="title"><strong>${esc(title)}</strong></div>${html}</div><div class="panel"><button type="button" class="opt cancel" data-close>Got it</button></div>`, (bd, done) => {
     bd.querySelector('[data-close]').addEventListener('click', () => done(null));
   });
 }
 
-// ---------- testo, date, linguaggi ----------
-const rtf = new Intl.RelativeTimeFormat('it', { numeric: 'auto', style: 'short' });
+// ---------- text, dates, languages ----------
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto', style: 'short' });
 export function relTime(iso) {
   if (!iso) return '';
   const diff = (new Date(iso).getTime() - Date.now()) / 1000;
   const abs = Math.abs(diff);
-  if (abs < 60) return 'ora';
+  if (abs < 60) return 'now';
   if (abs < 3600) return rtf.format(Math.round(diff / 60), 'minute');
   if (abs < 86400) return rtf.format(Math.round(diff / 3600), 'hour');
   if (abs < 86400 * 7) return rtf.format(Math.round(diff / 86400), 'day');
   if (abs < 86400 * 30) return rtf.format(Math.round(diff / (86400 * 7)), 'week');
-  return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: abs > 86400 * 300 ? 'numeric' : undefined });
+  return new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: abs > 86400 * 300 ? 'numeric' : undefined });
 }
 export function fullDate(iso) {
-  return new Date(iso).toLocaleString('it-IT', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 const LANG_COLORS = {
@@ -140,16 +140,16 @@ export function langInfo(filename, apiLang) {
     const info = CM.findModeByName(apiLang);
     if (info) { name = info.name; mime = info.mime || info.mimes[0]; }
   }
-  name = apiLang || name || 'Testo';
-  if (name === 'Plain Text') name = 'Testo';
+  name = apiLang || name || 'Text';
+  if (name === 'Plain Text') name = 'Text';
   return { name, mime, color: LANG_COLORS[name] || '#C7CBD1' };
 }
 
-// Riconoscimento leggero per il testo incollato senza nome file.
+// Lightweight language detection for pasted text without a file name.
 export function guessMime(text) {
   const t = (text || '').trim();
   if (!t) return 'text/plain';
-  if (/^[[{]/.test(t)) { try { JSON.parse(t); return 'application/json'; } catch { /* non è json */ } }
+  if (/^[[{]/.test(t)) { try { JSON.parse(t); return 'application/json'; } catch { /* not json */ } }
   if (/^<(!doctype|html)/i.test(t)) return 'text/html';
   if (/^<\?xml|^<[a-z][\w:-]*[\s>]/i.test(t)) return 'application/xml';
   if (/^#!.*\b(ba|z)?sh\b/.test(t)) return 'text/x-sh';
@@ -163,12 +163,12 @@ export function guessMime(text) {
 
 export function fileCount(g) {
   const n = Object.keys(g.files || {}).length;
-  return n === 1 ? '1 file' : n + ' file';
+  return n === 1 ? '1 file' : n + ' files';
 }
 
 export function firstFile(g) {
   const files = Object.values(g.files || {});
-  return files[0] || { filename: 'senza nome' };
+  return files[0] || { filename: 'untitled' };
 }
 
 export async function copyText(text) {
@@ -196,7 +196,7 @@ export function pickFiles({ multiple = true } = {}) {
       const files = Array.from(input.files || []);
       const out = [];
       for (const f of files) {
-        if (f.size > 5 * 1024 * 1024) { toast(f.name + ' è troppo grande (max 5 MB)'); continue; }
+        if (f.size > 5 * 1024 * 1024) { toast(f.name + ' is too large (max 5 MB)'); continue; }
         out.push({ name: f.name, text: await f.text() });
       }
       input.remove();

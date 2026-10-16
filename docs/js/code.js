@@ -1,4 +1,4 @@
-// Editor/visualizzatore di codice basato su CodeMirror 5.
+// Code editor/viewer based on CodeMirror 5.
 import { S } from './state.js';
 
 export function mountCode(el, { value = '', mime = 'text/plain', readOnly = true, wrap = S.settings.wrap, placeholder = '' } = {}) {

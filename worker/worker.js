@@ -1,12 +1,12 @@
-// Cloudflare Worker per il login OAuth di Gistario.
-// Riceve il "code" restituito da GitHub e lo scambia con il token,
-// usando il Client Secret che non deve mai stare nella webapp.
+// Cloudflare Worker for Gist Mobile's OAuth sign-in.
+// It receives the "code" returned by GitHub and exchanges it for a token,
+// using the Client Secret, which must never live inside the web app.
 //
-// Variabili richieste (Settings → Variables and Secrets):
-//   GITHUB_CLIENT_ID      (testo)   Client ID della OAuth App
-//   GITHUB_CLIENT_SECRET  (secret)  Client Secret della OAuth App
-//   ALLOWED_ORIGINS       (testo)   origini ammesse separate da virgola,
-//                                   es. "https://tuonome.github.io"
+// Required variables (Settings → Variables and Secrets):
+//   GITHUB_CLIENT_ID      (text)    OAuth App Client ID
+//   GITHUB_CLIENT_SECRET  (secret)  OAuth App Client Secret
+//   ALLOWED_ORIGINS       (text)    allowed origins, comma separated,
+//                                   e.g. "https://highshorestudio.github.io"
 
 export default {
   async fetch(request, env) {
@@ -37,12 +37,12 @@ export default {
 
     const gh = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'gistario-oauth-proxy' },
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'User-Agent': 'gist-mobile-oauth-proxy' },
       body: JSON.stringify(payload)
     });
     const data = await gh.json().catch(() => ({}));
     if (!gh.ok || data.error || !data.access_token) {
-      return json({ error: data.error || 'exchange_failed', error_description: data.error_description || 'Scambio del codice non riuscito' }, 400, cors);
+      return json({ error: data.error || 'exchange_failed', error_description: data.error_description || 'Code exchange failed' }, 400, cors);
     }
     return json({ access_token: data.access_token, scope: data.scope, token_type: data.token_type }, 200, cors);
   }

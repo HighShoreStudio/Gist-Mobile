@@ -1,4 +1,4 @@
-/* Gistario — stile "Liquid Glass" */
+/* Gist Mobile — "Liquid Glass" style */
 :root {
   --accent: #F0A63A;
   --on-accent: #1A1205;
@@ -53,7 +53,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 .mono { font-family: var(--mono); }
 [hidden] { display: none !important; }
 
-/* ---------- sfondo ---------- */
+/* ---------- background ---------- */
 #bg {
   position: fixed; inset: -10%;
   background:
@@ -90,7 +90,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 }
 .pad-bottom { padding-bottom: calc(var(--tabbar-h) + var(--tabbar-bottom) + 96px); }
 
-/* ---------- vetro ---------- */
+/* ---------- glass ---------- */
 .glass {
   background: var(--fill);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
@@ -106,7 +106,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 .press { transition: transform .16s ease, background-color .2s ease, opacity .2s ease; }
 .press:active { transform: scale(.95); }
 
-/* ---------- intestazioni ---------- */
+/* ---------- headers ---------- */
 .large-header {
   display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
   padding: calc(var(--sat) + 22px) 20px 12px 20px;
@@ -152,7 +152,7 @@ input::placeholder, textarea::placeholder { color: var(--text-3); }
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ---------- campi ---------- */
+/* ---------- fields ---------- */
 .searchbar {
   display: flex; align-items: center; gap: 10px;
   height: 46px; margin: 4px 16px 12px; padding: 0 16px; border-radius: 23px;
@@ -192,7 +192,7 @@ code.inline { font-family: var(--mono); background: var(--fill-2); padding: 1px 
 .segmented.files { overflow-x: auto; flex: 0 1 auto; min-width: 0; }
 .segmented.files > button { flex: 0 0 auto; font-family: var(--mono); font-size: 12.5px; }
 
-/* ---------- liste e card ---------- */
+/* ---------- lists and cards ---------- */
 .list-meta { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 4px; font-size: 13px; color: var(--text-2); }
 .list-meta button { background: none; border: 0; color: var(--text-2); font-size: 13px; min-height: 40px; display: inline-flex; align-items: center; gap: 4px; padding: 0; }
 .cards { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
@@ -225,7 +225,7 @@ code.inline { font-family: var(--mono); background: var(--fill-2); padding: 1px 
 .spin { width: 18px; height: 18px; border-radius: 9px; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--text); animation: spin .8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- gruppi impostazioni ---------- */
+/* ---------- settings groups ---------- */
 .section { margin: 0 16px 16px; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .section h2 { margin: 0; font-size: 15px; font-weight: 600; }
 .group { margin: 0 16px 16px; border-radius: 22px; overflow: hidden; }
@@ -282,7 +282,7 @@ body.no-tabbar #tabbar, body.kb-open #tabbar { transform: translateY(140%); opac
 }
 body.kb-open .fab, body.kb-open .float-note { display: none; }
 
-/* barra azioni flottante (lettura gist) */
+/* floating action bar (gist viewer) */
 .action-bar {
   position: absolute; z-index: 5;
   left: 24px; right: 24px; bottom: max(16px, calc(var(--sab) - 4px));
@@ -295,7 +295,7 @@ body.kb-open .fab, body.kb-open .float-note { display: none; }
 }
 .action-bar > .btn-accent { color: var(--on-accent); background: var(--accent); }
 
-/* ---------- area codice ---------- */
+/* ---------- code area ---------- */
 .code-box {
   flex: 1; min-height: 0; margin: 0 12px; border-radius: 26px; overflow: hidden;
   background: var(--code-bg);
@@ -436,7 +436,7 @@ body.kb-open .fab, body.kb-open .float-note { display: none; }
 }
 #toast.show { transform: translate(-50%, 0); opacity: 1; }
 
-/* desktop: colonna centrale più larga */
+/* desktop: wider central column */
 @media (min-width: 900px) {
   .large-header { padding-top: 40px; }
   .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }

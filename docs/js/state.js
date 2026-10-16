@@ -1,5 +1,5 @@
-// Stato condiviso dell'app e persistenza locale.
-const PREFIX = 'gistario.';
+// Shared app state and local persistence.
+const PREFIX = 'gistmobile.';
 
 export const LS = {
   get(key, fallback) {
@@ -9,10 +9,10 @@ export const LS = {
     } catch { return fallback; }
   },
   set(key, value) {
-    try { localStorage.setItem(PREFIX + key, JSON.stringify(value)); } catch { /* spazio pieno o storage bloccato */ }
+    try { localStorage.setItem(PREFIX + key, JSON.stringify(value)); } catch { /* storage full or blocked */ }
   },
   del(key) {
-    try { localStorage.removeItem(PREFIX + key); } catch { /* ignora */ }
+    try { localStorage.removeItem(PREFIX + key); } catch { /* ignore */ }
   }
 };
 
@@ -21,15 +21,15 @@ export const ACCENTS = ['#F0A63A', '#7CC4FA', '#9BE38A', '#F28FAD'];
 export const S = {
   token: LS.get('token', null),
   user: LS.get('user', null),
-  gists: LS.get('cache.gists', null),       // lista dei miei gist (riassunti)
-  starred: LS.get('cache.starred', null),   // lista dei gist con stella
-  full: new Map(),                          // gist completi aperti in questa sessione
+  gists: LS.get('cache.gists', null),       // my gists (summaries)
+  starred: LS.get('cache.starred', null),   // starred gists
+  full: new Map(),                          // full gists opened in this session
   list: { filter: 'all', query: '', sort: LS.get('sort', 'updated') },
   starList: { query: '' },
   explore: { user: '', results: null, loading: false, error: null },
   recent: LS.get('recent', []),
   settings: Object.assign({ accent: ACCENTS[0], codeSize: 13, wrap: false }, LS.get('settings', {})),
-  // Il Reader vive solo in memoria: si svuota quando l'app viene chiusa.
+  // The Reader lives in memory only: it is cleared when the app is closed.
   reader: { tabs: [], active: null, edit: false, wrap: true, seq: 0 },
   lastTab: '/gists',
   scroll: {}
@@ -109,7 +109,7 @@ export function setSession(token, user) {
 export function logout() {
   S.token = null; S.user = null; S.gists = null; S.starred = null; S.full.clear();
   ['token', 'user', 'cache.gists', 'cache.starred'].forEach(LS.del);
-  try { navigator.serviceWorker && navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage('clear-api'); } catch { /* ignora */ }
+  try { navigator.serviceWorker && navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage('clear-api'); } catch { /* ignore */ }
 }
 
 export function saveSettings() {

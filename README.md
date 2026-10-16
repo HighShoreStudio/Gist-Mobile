@@ -1,99 +1,99 @@
-# Gistario
+# Gist Mobile
 
-Webapp installabile (PWA) per gestire i tuoi **GitHub Gist** dall'iPhone, in stile Liquid Glass.
+An installable web app (PWA) to manage your **GitHub Gists** on iPhone, with a Liquid Glass look.
 
-- Leggi, crea, modifica, elimina, metti la stella e fai il fork dei gist, anche con più file e con la cronologia delle revisioni
-- **Reader**: schede temporanee in cui incollare o importare testo (file, link a un gist, URL raw) per leggerlo, modificarlo e copiarlo senza creare gist. Le schede restano solo in memoria e spariscono quando chiudi l'app
-- Apri gist esterni tramite link o ID, oppure sfoglia i gist pubblici di un utente
-- Editor CodeMirror con evidenziazione per C#, JS/TS, JSON, Python, Shell, HTML/CSS, Markdown, YAML, SQL e altri
-- Funziona offline (interfaccia e ultimi dati scaricati)
-- Nessun accesso ad altre parti di GitHub: serve solo il permesso `gist`
+- Read, create, edit, delete, star and fork gists, including multi-file gists and revision history
+- **Reader**: temporary tabs where you paste or import text (a file, a gist link, a raw URL) to read, edit and copy it without creating a gist. Tabs live in memory only and disappear when you close the app
+- Open external gists by link or ID, or browse a user's public gists
+- CodeMirror editor with highlighting for C#, JS/TS, JSON, Python, Shell, HTML/CSS, Markdown, YAML, SQL and more
+- Works offline (the interface and the last downloaded data)
+- No access to the rest of GitHub: only the `gist` scope is needed
 
-## Struttura
+## Structure
 
 ```
 Gist Mobile/
-├─ docs/                ← la webapp: GitHub Pages pubblica questa cartella
+├─ docs/                ← the web app: GitHub Pages serves this folder
 │  ├─ index.html
-│  ├─ config.js         ← da compilare per l'accesso OAuth (facoltativo)
+│  ├─ config.js         ← fill in for OAuth sign-in (optional)
 │  ├─ manifest.webmanifest, sw.js, icons/
 │  ├─ css/app.css
 │  ├─ js/               ← app.js (router), api.js, auth.js, state.js, ui.js, code.js, views/
-│  └─ vendor/           ← CodeMirror 5 (già incluso, nessuna dipendenza esterna)
-└─ worker/              ← Cloudflare Worker per "Accedi con GitHub"
+│  └─ vendor/           ← CodeMirror 5 (bundled, no external dependencies)
+└─ worker/              ← Cloudflare Worker for "Sign in with GitHub"
    ├─ worker.js
    └─ wrangler.toml
 ```
 
-Non serve nessuna build: sono file statici.
+No build step: everything is static files.
 
-## Provarla sul PC
+## Try it on your PC
 
-Dalla cartella `docs` avvia un server locale qualsiasi, per esempio:
+Start any local server from the `docs` folder, for example:
 
 ```
 cd docs
 python -m http.server 8080
 ```
 
-Poi apri `http://localhost:8080`. Accedi con un token personale (vedi sotto).
+Then open `http://localhost:8080` and sign in with a personal token (see below).
 
-## 1. Pubblicarla su GitHub Pages
+## 1. Publish on GitHub Pages
 
-1. Fai commit e push di questa cartella sul repository `HighShoreStudio/Gist-Mobile`.
-2. Su GitHub: **Settings → Pages → Build and deployment → Deploy from a branch**, scegli `main` e la cartella **`/docs`**.
-3. Dopo un minuto l'app è su `https://highshorestudio.github.io/Gist-Mobile/`.
+1. Commit and push this folder to the `HighShoreStudio/Gist-Mobile` repository.
+2. On GitHub: **Settings → Pages → Build and deployment → Deploy from a branch**, pick `main` and the **`/docs`** folder.
+3. After a minute the app is live at `https://highshorestudio.github.io/Gist-Mobile/`.
 
-Il codice del repository è pubblico, ma non contiene dati personali: il token resta solo sul tuo iPhone.
+The repository code is public, but it contains no personal data: your token stays on your iPhone only.
 
-## 2. Accesso
+## 2. Sign-in
 
-### Opzione A: token personale (subito, senza configurare nulla)
+### Option A: personal token (works right away, no setup)
 
-1. Apri <https://github.com/settings/tokens/new?scopes=gist&description=Gistario>.
-2. Lascia selezionato solo **gist**, scegli la scadenza e genera il token.
-3. Nell'app incollalo in **Personal Access Token** e premi **Connetti**.
+1. Open <https://github.com/settings/tokens/new?scopes=gist&description=Gist%20Mobile>.
+2. Keep only **gist** selected, pick an expiration and generate the token.
+3. In the app, paste it into **Personal Access Token** and tap **Connect**.
 
-### Opzione B: "Accedi con GitHub" (OAuth)
+### Option B: "Sign in with GitHub" (OAuth)
 
-GitHub non permette di completare il login OAuth solo dal browser, perché serve un segreto che non può stare nella webapp. Per questo c'è un piccolo Worker gratuito che fa da intermediario.
+GitHub doesn't let a browser-only app complete the OAuth sign-in, because it needs a secret that can't live in the web app. A small free Worker acts as the go-between.
 
-1. **Crea la OAuth App**: GitHub → Settings → Developer settings → OAuth Apps → **New OAuth App**
+1. **Create the OAuth App**: GitHub → Settings → Developer settings → OAuth Apps → **New OAuth App**
    - *Homepage URL*: `https://highshorestudio.github.io/Gist-Mobile/`
-   - *Authorization callback URL*: `https://highshorestudio.github.io/Gist-Mobile/` (lo stesso indirizzo)
-   - Salva il **Client ID** e genera un **Client Secret**.
-2. **Crea il Worker** su <https://dash.cloudflare.com> → Workers & Pages → **Create → Worker**:
-   - Incolla il contenuto di `worker/worker.js` e fai **Deploy**.
-   - In **Settings → Variables and Secrets** aggiungi:
-     - `GITHUB_CLIENT_ID` (testo): il Client ID
-     - `GITHUB_CLIENT_SECRET` (**secret**): il Client Secret
-     - `ALLOWED_ORIGINS` (testo): `https://highshorestudio.github.io` (solo l'origine, senza `/Gist-Mobile`)
-   - In alternativa, da riga di comando nella cartella `worker`: compila `wrangler.toml`, poi `npx wrangler deploy` e `npx wrangler secret put GITHUB_CLIENT_SECRET`.
-3. **Compila `docs/config.js`**:
+   - *Authorization callback URL*: `https://highshorestudio.github.io/Gist-Mobile/` (same address)
+   - Save the **Client ID** and generate a **Client Secret**.
+2. **Create the Worker** at <https://dash.cloudflare.com> → Workers & Pages → **Create → Worker**:
+   - Paste the contents of `worker/worker.js` and **Deploy**.
+   - In **Settings → Variables and Secrets** add:
+     - `GITHUB_CLIENT_ID` (text): the Client ID
+     - `GITHUB_CLIENT_SECRET` (**secret**): the Client Secret
+     - `ALLOWED_ORIGINS` (text): `https://highshorestudio.github.io` (origin only, without `/Gist-Mobile`)
+   - Or, from the command line in the `worker` folder: fill in `wrangler.toml`, then run `npx wrangler deploy` and `npx wrangler secret put GITHUB_CLIENT_SECRET`.
+3. **Fill in `docs/config.js`**:
    ```js
-   window.GISTARIO_CONFIG = {
-     oauthClientId: "IL_TUO_CLIENT_ID",
-     tokenProxyUrl: "https://gistario-oauth.TUONOME.workers.dev/token"
+   window.GIST_MOBILE_CONFIG = {
+     oauthClientId: "YOUR_CLIENT_ID",
+     tokenProxyUrl: "https://gist-mobile-oauth.YOURNAME.workers.dev/token"
    };
    ```
-4. Ricarica `config.js` su GitHub Pages. Nella schermata di accesso comparirà **Accedi con GitHub**, con il token come alternativa.
+4. Push the updated `config.js`. The sign-in screen will show **Sign in with GitHub**, with the token as an alternative.
 
-## 3. Installarla sull'iPhone
+## 3. Install it on iPhone
 
-1. Apri l'indirizzo dell'app in **Safari**.
-2. Tocca **Condividi** → **Aggiungi alla schermata Home** → **Aggiungi**.
-3. Avviala dall'icona: si apre a schermo intero, come un'app.
+1. Open the app's address in **Safari**.
+2. Tap **Share** → **Add to Home Screen** → **Add**.
+3. Launch it from the icon: it opens full screen, like an app.
 
-La stessa guida è anche nell'app, in **Profilo → Installa sull'iPhone**.
+The same guide is in the app under **Profile → Install on iPhone**.
 
-## Note
+## Notes
 
-- **Dove sta il token**: nella memoria del browser dell'app installata (`localStorage`). È meno protetto del Portachiavi di un'app nativa: usa un token con il solo permesso `gist` e, se vuoi, con una scadenza. **Profilo → Esci** lo cancella.
-- **Visibilità**: GitHub non permette di cambiare un gist da segreto a pubblico (o viceversa) dopo averlo creato, quindi in modifica l'opzione è bloccata.
-- **Aggiornamenti**: dopo aver caricato una nuova versione, aumenta `VERSION` in `docs/sw.js`, così l'iPhone scarica i file nuovi.
-- **Reader e link esterni**: alcuni siti non permettono di scaricare i loro file da un'altra pagina (CORS). In quel caso copia il testo e usa **Incolla**.
-- **Limiti di GitHub**: senza accesso puoi fare 60 richieste l'ora; con l'accesso, 5.000.
+- **Where the token is stored**: in the installed app's browser storage (`localStorage`). That's less protected than a native app's Keychain, so use a token with only the `gist` scope and, ideally, an expiration. **Profile → Sign out** removes it.
+- **Visibility**: GitHub doesn't allow switching a gist between secret and public after it's created, so the option is locked when editing.
+- **Updates**: after publishing a new version, bump `VERSION` in `docs/sw.js` so the iPhone downloads the new files.
+- **Reader and external links**: some sites don't allow their files to be downloaded from another page (CORS). In that case copy the text and use **Paste**.
+- **GitHub limits**: 60 requests per hour without signing in, 5,000 when signed in.
 
-## Licenze
+## Licenses
 
-CodeMirror 5 è distribuito con licenza MIT (`docs/vendor/CODEMIRROR-LICENSE`).
+CodeMirror 5 is distributed under the MIT license (`docs/vendor/CODEMIRROR-LICENSE`).

@@ -1,8 +1,8 @@
 {
-  "name": "Gistario",
-  "short_name": "Gistario",
-  "description": "Leggi, crea e modifica i tuoi GitHub Gist dall'iPhone.",
-  "lang": "it",
+  "name": "Gist Mobile",
+  "short_name": "Gist Mobile",
+  "description": "Read, create and edit your GitHub Gists on iPhone.",
+  "lang": "en",
   "start_url": "./#/gists",
   "scope": "./",
   "display": "standalone",
